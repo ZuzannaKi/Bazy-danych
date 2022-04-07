@@ -1,0 +1,103 @@
+CREATE DATABASE firma
+GO
+--DROP SCHEMA
+--rozliczenia CASCADE;
+CREATE SCHEMA rozliczenia;
+--tworzenie tabel
+CREATE TABLE rozliczenia.pracownicy
+	(id_pracownika BIGINT PRIMARY KEY NOT NULL, 
+	 imie CHARACTER VARYING(50),
+	 nazwisko CHARACTER VARYING(50) NOT NULL,
+	 adres CHARACTER VARYING(50),
+	 telefon BIGINT NOT NULL
+	 );
+ 
+CREATE TABLE rozliczenia.godziny
+	(id_godziny BIGINT PRIMARY KEY NOT NULL,
+	data_ DATE NOT NULL,
+	liczba_godzin BIGINT NOT NULL,
+	id_pracownika BIGINT NOT NULL);
+	 
+--CONSTRAINT fkPID FOREIGN KEY (id_pracownika) REFERENCES rozliczenia.pracownicy(id_pracownika));
+
+CREATE TABLE rozliczenia.premie
+(id_premii BIGINT PRIMARY KEY NOT NULL, 
+	rodzaj CHARACTER VARYING(200), 
+	kwota MONEY NOT NULL);
+	
+CREATE TABLE rozliczenia.pensje(
+	id_pensji BIGINT PRIMARY KEY NOT NULL, 
+	stanowisko CHARACTER VARYING(200) NOT NULL,
+	kwota MONEY NOT NULL, 
+	id_premii BIGINT  NOT NULL);
+	
+	ALTER TABLE rozliczenia.pensje
+	ADD FOREIGN KEY (id_premii) 
+	REFERENCES rozliczenia.premie(id_premii);
+	-----------
+	 ALTER TABLE rozliczenia.godziny
+	ADD FOREIGN KEY (id_pracownika) 
+	REFERENCES rozliczenia.pracownicy(id_pracownika);
+	 ------------
+--CONSTRAINT fkPreID FOREIGN KEY (id_premii) REFERENCES rozliczenia.premie(id_premii));	
+--Wypełnienie tabeli
+SELECT * FROM rozliczenia.pracownicy;
+
+INSERT INTO rozliczenia.pracownicy VALUES(1, 'Melania','De rosa', 'Zielona 30', 678444214);
+INSERT INTO rozliczenia.pracownicy VALUES(2, 'Jan', 'Rousseau','Urocza 2/4', 692244178);
+INSERT INTO rozliczenia.pracownicy VALUES(3, 'Jakob', 'Hoffman','Batorego 6',644511036);
+INSERT INTO rozliczenia.pracownicy VALUES(4, 'Magdalena', 'Zielińska','Batorego 6', 573797742);
+INSERT INTO rozliczenia.pracownicy VALUES(5, 'Franciszek', 'Konopnicki','Kazminierza Wielkiego 4/3', 786311510);
+INSERT INTO rozliczenia.pracownicy VALUES(6, 'Róża', 'Halcarz','Modrzejewska 8', 495610322);
+INSERT INTO rozliczenia.pracownicy VALUES(7, 'Jagoda', 'Pietrzejewska','Żywiecka 45', 827915624);
+INSERT INTO rozliczenia.pracownicy VALUES(8, 'Krzysztof', 'Szewczyk','Lwowska 9', 114492960);
+INSERT INTO rozliczenia.pracownicy VALUES(9, 'Elżbieta', 'Jasińska','Grunwaldzka 48', 544380585);
+INSERT INTO rozliczenia.pracownicy VALUES(10,'Gustaw','Ostafiński','Lwowska 16', 734524210);
+
+SELECT * FROM rozliczenia.godziny;
+INSERT INTO rozliczenia.godziny VALUES(1,'16-03-2022',8,2);
+INSERT INTO rozliczenia.godziny VALUES(2, '17-03-2022',7,1);
+INSERT INTO rozliczenia.godziny VALUES(3,'18-03-2022',8,4);
+INSERT INTO rozliczenia.godziny VALUES(4, '16-03-2022',7,6);
+INSERT INTO rozliczenia.godziny VALUES(5,'19-03-2022',8,9);
+INSERT INTO rozliczenia.godziny VALUES(6, '20-03-2022',7,10);
+INSERT INTO rozliczenia.godziny VALUES(7,'19-03-2022',8,7);
+INSERT INTO rozliczenia.godziny VALUES(8, '17-03-2022',7,3);
+INSERT INTO rozliczenia.godziny VALUES(9,'16-03-2022',8,5);
+INSERT INTO rozliczenia.godziny VALUES(10, '19-03-2022',7,8);
+
+SELECT * FROM rozliczenia.premie;
+INSERT INTO rozliczenia.premie VALUES(1, 'regulaminowa',100.00);
+INSERT INTO rozliczenia.premie VALUES(2, 'uznaniowa',200.00);
+INSERT INTO rozliczenia.premie VALUES(3, 'regulaminowa',300.00);
+INSERT INTO rozliczenia.premie VALUES(4, 'regulaminowa',1000.00);
+INSERT INTO rozliczenia.premie VALUES(5, 'regulaminowa',500.00);
+INSERT INTO rozliczenia.premie VALUES(6, 'uznaniowa',50.00);
+INSERT INTO rozliczenia.premie VALUES(7, 'uznaniowa',250.00);
+INSERT INTO rozliczenia.premie VALUES(8, 'uznaniowa',350.00);
+INSERT INTO rozliczenia.premie VALUES(9, 'regulaminowa',550.00);
+INSERT INTO rozliczenia.premie VALUES(10, 'uznaniowa',700.00);
+
+SELECT * FROM rozliczenia.pensje;
+INSERT INTO rozliczenia.pensje VALUES(1, 'Księgowy',4000.00,4);
+INSERT INTO rozliczenia.pensje VALUES(2, 'Dyrektor ds. Sprzedaży',5500.00,5);
+INSERT INTO rozliczenia.pensje VALUES(3, 'Analityk rynku',4500.00,8);
+INSERT INTO rozliczenia.pensje VALUES(4, 'Kierownik zmiany',4600.00,10);
+INSERT INTO rozliczenia.pensje VALUES(5, 'Przedstawiciel handlowy',4000.00,9);
+INSERT INTO rozliczenia.pensje VALUES(6, 'Sekretarka ',3800.00,6);
+INSERT INTO rozliczenia.pensje VALUES(7, 'Radca prawny ',5000.00,7);
+INSERT INTO rozliczenia.pensje VALUES(8, 'Specjalista ds. logistyki',4950.00,3);
+INSERT INTO rozliczenia.pensje VALUES(9, 'Specjalista ds. kontrolingu',4900.00,1);
+INSERT INTO rozliczenia.pensje VALUES(10, 'Media Manager',4500.00,2);
+
+---
+
+SELECT nazwisko,adres FROM rozliczenia.pracownicy;
+--
+SELECT DATE_PART('isodow',godziny.data_) AS dzien_tygodnia,
+		DATE_PART('month',godziny.data_) AS miesiac 
+FROM rozliczenia.godziny;
+---
+ALTER TABLE rozliczenia.pensje RENAME COLUMN kwota TO kwota_brutto;
+ALTER TABLE rozliczenia.pensje ADD kwota_netto MONEY;
+UPDATE rozliczenia.pensje SET kwota_netto= kwota_brutto/1.23;	
