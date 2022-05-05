@@ -7,7 +7,7 @@ cena_produktu->suma_brutto
  VAT->cena_produktu
 ilość -> suma_brutto,suma_netto
 data_zamowienia -> suma_brutto
-(suma_netto,VAT)->suma_brutto
+[suma_netto,VAT]->suma_brutto
 
 ZADANIE 2
 Klucze kandydujące:
