@@ -1,0 +1,31 @@
+ZADANIE 1
+id_produktu->nazwa_produktu,cena_produktu,VAT
+nazwa_produktu->X
+id_klienta->nazwa_klienta
+nazwa_klienta-> X
+cena_produktu->suma_brutto
+ VAT->cena_produktu
+ilość -> suma_brutto,suma_netto
+data_zamowienia -> suma_brutto
+(suma_netto,VAT)->suma_brutto
+
+ZADANIE 2
+Klucze kandydujące:
+Id_produktu -pk
+Id_klienta+data_zamowienia
+
+ZADANIE 3
+id_pomieszczenia -> numer_pomieszczenia,powierzchnia,liczba_okien,liczba_drzwi
+numer_pomieszczenia -> powierzchnia,liczba_okien,liczba_drzwi
+powierzchnia -> X
+liczba_okien->X
+liczba_drzwi ->X
+id_budynku->id_pomieszczenia,ulica,miasto,kod_pocztowy
+ulica->X
+miasto->ulica
+kod_pocztow->miasto
+
+Klucze kandydujące:
+Id_pomieszczenia
+Id_pomieszczenia+Id_budynku
+Numer_pomieszczenia+Id_budynku
