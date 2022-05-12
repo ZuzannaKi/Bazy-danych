@@ -1,0 +1,80 @@
+SELECT CAST (pracownicy.telefon as varchar(10)) as Num1 ;
+ALTER TABLE ksiegowosc.pracownicy ADD nr_tel_kierunkowy varchar(15);
+UPDATE ksiegowosc.pracownicy SET nr_tel_kierunkowy=CONCAT('+48',pracownicy.telefon);	
+-------
+--B)
+SELECT 
+CONCAT(
+	SUBSTRING(nr_tel_kierunkowy,0,4),
+	' ',
+	SUBSTRING(nr_tel_kierunkowy,5,3),
+	'-',
+	SUBSTRING(nr_tel_kierunkowy,8,3),
+	'-',
+	SUBSTRING(nr_tel_kierunkowy,10)
+)
+FROM ksiegowosc.pracownicy
+
+--C)
+SELECT *, UPPER( nazwisko ) as U_nazwisko,
+LENGTH(nazwisko)
+FROM ksiegowosc.pracownicy
+ORDER BY  LENGTH(nazwisko) DESC, 
+nazwisko DESC LIMIT 1
+
+--D)???????????
+SELECT 
+CONVERT(VARCHAR(32), HashBytes('MD5', pr.imie), 2) as MD5Hash_imie,
+CONVERT(VARCHAR(32), HashBytes('MD5', pr.nazwisko), 2) as MD5Hash_nazwisko,
+CONVERT(VARCHAR(32), HashBytes('MD5', pr.adres), 2) as MD5Hash_adres,
+CONVERT(VARCHAR(32), HashBytes('MD5', pr.telefon), 2) as MD5Hash_telefon,
+CONVERT(VARCHAR(32), HashBytes('MD5', pe.pensja), 2) as MD5Hash_pensja
+FROM ksiegowosc.pracownicy AS pr
+JOIN ksiegowosc.wynagrodzenie AS w
+ON pr.id_pracownika = w.id_pracownika
+JOIN ksiegowosc.pensje AS pe
+ON w.id_pensji = pe.id_pensji
+
+SELECT
+	MD5(pr.id_pracownika::varchar(10)) AS MD5_id_pracownika,
+	MD5(pr.imie) AS MD5_imie,
+	MD5(pr.nazwisko) AS MD5_nazwisko,
+	MD5(pr.adres) AS MD5_adres,
+	MD5(pr.telefon::varchar(10)) AS MD5_telefon,
+	MD5(pe.kwota::varchar(10)) AS MD5_pensja
+	FROM ksiegowosc.pracownicy AS pr
+JOIN ksiegowosc.wynagrodzenie AS w
+	ON pr.id_pracownika = w.id_pracownika
+JOIN ksiegowosc.pensje AS pe
+	ON w.id_pensji = pe.id_pensji
+--F)
+SELECT kp.nazwisko,kp.imie,kpe.kwota,kpr.kwota
+FROM ksiegowosc.pracownicy AS kp                      
+JOIN ksiegowosc.wynagrodzenie AS kw
+ON kp.id_pracownika = kw.id_pracownika
+LEFT OUTER JOIN ksiegowosc.pensje AS kpe 
+ON kpe.id_pensji = kw.id_pensji
+LEFT OUTER JOIN ksiegowosc.premie AS kpr
+ON kpr.id_premii = kw.id_premii
+
+--G)
+SELECT CONCAT('Pracownik ', kp.imie, ' ', kp.nazwisko,', w dniu ',kg.data_,' otrzymał pensje całkowitą na kwotę: ',
+			  cast(kpe.kwota as numeric)+cast(kpr.kwota as numeric) +(kg.nadgodziny*34)   ,' zł gdzie wynagrodzenie zasadnicze wynosiło: ', kpe.kwota,
+			  ', premia: ',kpr.kwota,',nadgodziny: ',kg.nadgodziny*34,'zł')
+
+FROM ksiegowosc.pracownicy AS kp
+JOIN ksiegowosc.godziny AS kg
+ON kp.id_pracownika = kg.id_pracownika
+JOIN ksiegowosc.wynagrodzenie AS kw
+ON kp.id_pracownika = kw.id_pracownika
+JOIN ksiegowosc.pensje AS kpe 
+ON kpe.id_pensji = kw.id_pensji
+JOIN ksiegowosc.premie AS kpr
+ON kpr.id_premii = kw.id_premii
+
+
+ALTER TABLE ksiegowosc.pensje ADD pensja_calkowita BIGINT;
+UPDATE ksiegowosc.pensje SET pensja_calkowita = kp.ekwota+kpr.kwota + (kg.nadgodziny*34);
+ALTER TABLE ksiegowosc.godziny ADD nadgodziny money;
+UPDATE ksiegowosc.godziny SET nadgodziny = ksiegowosc.godziny.liczba_godzin-150  ; 	
+
