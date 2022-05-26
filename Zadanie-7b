@@ -1,0 +1,93 @@
+-----ZADANIE-1------
+DROP FUNCTION Fibonacci
+CREATE FUNCTION dbo.Fibonacci(@N int)
+RETURNS @tabs TABLE(tab int)
+AS
+BEGIN
+DECLARE 
+@a int = 0,
+@a2 int = 1,
+@count int = 0,
+@temp int 
+INSERT INTO @tabs VALUES(@a),(@a2)
+WHILE @count <= @N -2
+BEGIN
+ INSERT INTO @tabs VALUES (@a2+@a)
+ SET @temp = @a + @a2
+ SET @a = @a2
+ SET @a2 = @temp
+ SET @count = @count + 1 ;
+ END
+ RETURN
+ END
+ SELECT * from dbo.Fibonacci(7)
+ DROP PROCEDURE P_Fibonacci
+ CREATE PROCEDURE P_Fibonacci (@n INT)
+ AS 
+ BEGIN
+	DECLARE 
+	@wynik INT=1,
+	@count INT 
+	WHILE @count <= @n
+	BEGIN
+		SET @wynik=dbo.Fibonacci(@count)
+		PRINT CONVERT(VARCHAR,@count) + 'wyraz ciągu Fibonacciego to:' + CONVERT (VARCHAR,@wynik)
+		SET @count = @count + 1
+	END
+END
+EXEC dbo.P_Fibonacci 5
+
+
+DROP FUNCTION dbo.Fibonacci
+DROP PROCEDURE dbo.P_Fibonacci
+
+
+ -------ZADANIE-2-----------
+ DROP TRIGGER UpSurname
+ GO
+CREATE TRIGGER UpSurname
+	 ON Person.Person
+	 AFTER INSERT
+	 AS 
+	 BEGIN
+		UPDATE Per SET Per.LastName = UPPER (per.LastName)
+		FROM Person.Person AS per
+		--JOIN Inserted AS i
+		--ON Per.LastName = i.LastName;
+	END
+		DROP TRIGGER Person.UpSurname
+
+		SELECT TOP 4 * 
+		FROM Person.Person 
+		ORDER BY BusinessEntityID DESC
+
+		INSERT INTO Person.Person (BusinessEntityID,PersonType,FirstName,LastName)
+		VALUES(20778,'IN','Emily','Nowakowska')
+		SELECT * 
+		FROM Person.Person
+		---
+		DELETE 
+		FROM Person.Person 
+		WHERE BusinessEntityID = 20778;
+		---
+		INSERT INTO Person.BusinessEntity(rowguid)
+		VALUES (NewID())
+		SELECT *
+		FROM Person.BusinessEntity	
+		SELECT * FROM Person.Person
+	
+
+ -------ZADANIE-3-----------
+CREATE TRIGGER taxRateMonitoring2
+	ON Sales.sales
+	AFTER UPDATE
+	AS
+	BEGIN
+	DECLARE
+		@ins int,
+		@del int
+	SELECT @ins = inserted.taxRate from inserted;
+	SELECT @del = deleted.taxRate from deleted;
+		if (abs(@ins - @del) > 30) 
+	PRINT('Nastapila zmiana pola taxRate o wiecej niz 30%')
+END
