@@ -1,0 +1,87 @@
+-----ZADANIE 1-----
+--Wykorzystując wyrażenie CTE zbuduj zapytanie, które znajdzie informacje na temat stawki 
+--pracownika oraz jego danych, a następnie zapisze je do tabeli tymczasowej 
+--TempEmployeeInfo. Rozwiąż w oparciu o AdventureWorks.
+USE AdventureWorks2019;
+-- First CTE table
+ WITH ITsalary (
+ PayFrequency, 
+ BusinessEntityID,
+ Rate) AS (
+    SELECT
+        BusinessEntityID,
+		PayFrequency,
+		Rate
+    FROM HumanResources.EmployeePayHistory),
+
+-- Second CTE table Personal_Inf with the fields Stanowisko,Birthday and BusinessEntityID
+
+Personal_Inf (Stanowisko,Birthday,BusinessEntityID) AS (
+    SELECT 
+  		JobTitle,
+		BirthDate,
+  		BusinessEntityID
+    FROM HumanResources.Employee
+	WHERE BusinessEntityID IS NOT NULL),
+    
+-- Third CTE table W_name with the fields ID and Salary
+
+W_name (PName,BusinessEntityID ) AS (
+SELECT 
+LastName+ ' ' + FirstName,
+BusinessEntityID
+FROM Person.Person)
+
+
+SELECT W_name.PName, Personal_Inf.Stanowisko,Personal_Inf.Birthday, ITsalary.Rate 
+FROM Personal_Inf INNER JOIN ITsalary
+	ON Personal_Inf.BusinessEntityID= ITsalary.BusinessEntityID
+	INNER JOIN W_name 
+        ON Personal_Inf.BusinessEntityID = W_name.BusinessEntityID 
+		WHERE Rate IS NOT NULL
+		ORDER BY PName
+		
+
+
+-----ZADANIE 2---
+--Uzyskaj informacje na temat przychodów ze sprzedaży według firmy i kontaktu (za pomocą 
+--CTE i bazy AdventureWorksL). Wynik powinien wyglądać następująco:
+USE AdventureWorksLT2019;
+WITH CompanyC (CompanyContact,ID)
+AS 
+(SELECT CompanyName + ' (' + FirstName + ' ' + LastName + ')',
+CustomerID
+FROM SalesLT.Customer 
+),
+C_Revenue (Revenue, CustomerID)
+AS
+(SELECT
+		TotalDue,
+		CustomerID
+	FROM SalesLT.SalesOrderHeader
+)
+SELECT CompanyC.CompanyContact,C_Revenue.Revenue
+FROM CompanyC JOIN C_Revenue
+ON C_Revenue.CustomerID = CompanyC.ID
+ORDER BY CompanyContact
+
+
+-----ZADANIE 3-----
+--Napisz zapytanie, które zwróci wartość sprzedaży dla poszczególnych kategorii produktów.
+--Wykorzystaj CTE i bazę AdventureWorksLT.
+WITH Kategoria(Category,ID)AS
+(SELECT 
+Name,
+ProductCategoryID
+FROM SalesLT.ProductCategory),
+Cena (SalesValue,SaID)AS
+(SELECT 
+LineTotal,
+ProductID
+FROM SalesLT.SalesOrderDetail)
+
+SELECT Kategoria.Category, CONVERT(float,SUM(Cena.SalesValue)) AS SalesValue
+FROM Kategoria INNER JOIN SalesLT.Product
+ON Kategoria.ID = SalesLT.Product.ProductCategoryID
+INNER JOIN Cena ON SalesLT.Product.ProductID= Cena.SaID
+GROUP BY Kategoria.Category
